@@ -2,11 +2,12 @@
 
 ## Overview
 
-This is a full-stack web application built with React and Express, designed to provide educational games for children. The application features three different games - shape sorting, counting, and color matching - with a modern, child-friendly interface using 3D graphics and interactive elements.
+This is a full-stack web application built with React and Express, designed to provide educational games for children ages 3-5. The application features three different games - shape sorting, counting, and color matching - with a modern, child-friendly interface using 3D graphics, interactive elements, and engaging background music. The app is currently in sandbox mode for future enhancements.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Current status: Keep app in sandbox for potential future enhancements.
 
 ## System Architecture
 
