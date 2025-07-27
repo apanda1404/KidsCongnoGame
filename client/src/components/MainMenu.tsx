@@ -25,8 +25,28 @@ export default function MainMenu() {
   };
 
   const handleFullScreen = () => {
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen();
+    try {
+      if (document.fullscreenElement) {
+        // Exit fullscreen if already in fullscreen
+        document.exitFullscreen();
+      } else {
+        // Enter fullscreen
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen();
+        } else if ((document.documentElement as any).webkitRequestFullscreen) {
+          // Safari support
+          (document.documentElement as any).webkitRequestFullscreen();
+        } else if ((document.documentElement as any).mozRequestFullScreen) {
+          // Firefox support
+          (document.documentElement as any).mozRequestFullScreen();
+        } else if ((document.documentElement as any).msRequestFullscreen) {
+          // IE/Edge support
+          (document.documentElement as any).msRequestFullscreen();
+        }
+      }
+    } catch (error) {
+      console.log('Fullscreen not supported or blocked by browser');
+      alert('Fullscreen mode is not available. You can manually press F11 or use your browser\'s fullscreen option.');
     }
   };
 
@@ -185,11 +205,19 @@ export default function MainMenu() {
               color: '#FFB6C1',
               fontSize: '1rem',
               textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
-              margin: '0'
+              margin: '0 0 10px 0'
             }}>
               Tap the music button to hear fun sounds! 🔊
             </p>
           )}
+          <p style={{
+            color: '#E6E6FA',
+            fontSize: '0.9rem',
+            textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
+            margin: '0'
+          }}>
+            For the best experience, try full screen mode or press F11 on your keyboard!
+          </p>
         </div>
       </div>
 
