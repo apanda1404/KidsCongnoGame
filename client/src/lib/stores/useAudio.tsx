@@ -5,6 +5,7 @@ interface AudioState {
   hitSound: HTMLAudioElement | null;
   successSound: HTMLAudioElement | null;
   isMuted: boolean;
+  isPlaying: boolean;
   
   // Setter functions
   setBackgroundMusic: (music: HTMLAudioElement) => void;
@@ -15,27 +16,57 @@ interface AudioState {
   toggleMute: () => void;
   playHit: () => void;
   playSuccess: () => void;
+  startBackgroundMusic: () => void;
+  stopBackgroundMusic: () => void;
 }
 
 export const useAudio = create<AudioState>((set, get) => ({
   backgroundMusic: null,
   hitSound: null,
   successSound: null,
-  isMuted: true, // Start muted by default
+  isMuted: false, // Start unmuted for engaging experience
+  isPlaying: false,
   
   setBackgroundMusic: (music) => set({ backgroundMusic: music }),
   setHitSound: (sound) => set({ hitSound: sound }),
   setSuccessSound: (sound) => set({ successSound: sound }),
   
   toggleMute: () => {
-    const { isMuted } = get();
+    const { isMuted, backgroundMusic } = get();
     const newMutedState = !isMuted;
     
-    // Just update the muted state
     set({ isMuted: newMutedState });
     
-    // Log the change
+    // Control background music based on mute state
+    if (backgroundMusic) {
+      if (newMutedState) {
+        backgroundMusic.pause();
+        set({ isPlaying: false });
+      } else {
+        backgroundMusic.play().catch(() => {});
+        set({ isPlaying: true });
+      }
+    }
+    
     console.log(`Sound ${newMutedState ? 'muted' : 'unmuted'}`);
+  },
+  
+  startBackgroundMusic: () => {
+    const { backgroundMusic, isMuted } = get();
+    if (backgroundMusic && !isMuted) {
+      backgroundMusic.play().catch(() => {
+        console.log("Background music autoplay prevented - user interaction required");
+      });
+      set({ isPlaying: true });
+    }
+  },
+  
+  stopBackgroundMusic: () => {
+    const { backgroundMusic } = get();
+    if (backgroundMusic) {
+      backgroundMusic.pause();
+      set({ isPlaying: false });
+    }
   },
   
   playHit: () => {

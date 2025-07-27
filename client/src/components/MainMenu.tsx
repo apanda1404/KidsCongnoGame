@@ -7,11 +7,21 @@ import GameContainer from "./ui/GameContainer";
 export default function MainMenu() {
   const { start } = useGame();
   const { setCurrentGame, progress } = useGameProgress();
-  const { toggleMute, isMuted } = useAudio();
+  const { toggleMute, isMuted, startBackgroundMusic, isPlaying } = useAudio();
 
   const handleGameSelect = (gameType: 'shapes' | 'counting' | 'colors') => {
+    // Start background music on first interaction
+    startBackgroundMusic();
     setCurrentGame(gameType);
     start();
+  };
+
+  const handleSoundToggle = () => {
+    // Start background music on first interaction if unmuting
+    if (isMuted) {
+      startBackgroundMusic();
+    }
+    toggleMute();
   };
 
   const games = [
@@ -102,28 +112,64 @@ export default function MainMenu() {
 
         {/* Sound Toggle */}
         <GameButton
-          onClick={toggleMute}
+          onClick={handleSoundToggle}
           style={{
             backgroundColor: isMuted ? '#FF6B6B' : '#96CEB4',
-            width: '150px',
-            height: '60px',
-            fontSize: '1.5rem'
+            width: '180px',
+            height: '70px',
+            fontSize: '1.3rem',
+            animation: isPlaying && !isMuted ? 'musicPulse 1s ease-in-out infinite' : 'none'
           }}
         >
-          {isMuted ? '🔇 Sound Off' : '🔊 Sound On'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {isMuted ? '🔇' : '🎵'}
+            <span>{isMuted ? 'Music Off' : 'Music On'}</span>
+            {isPlaying && !isMuted && <span>♪</span>}
+          </div>
         </GameButton>
 
         {/* Instructions */}
-        <p style={{
-          color: '#fff',
-          fontSize: '1.1rem',
-          marginTop: '20px',
-          textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
-          maxWidth: '600px'
-        }}>
-          Tap any game to start learning and having fun! 🌟
-        </p>
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <p style={{
+            color: '#fff',
+            fontSize: '1.1rem',
+            textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
+            maxWidth: '600px',
+            margin: '0 auto 10px'
+          }}>
+            Tap any game to start learning and having fun! 🌟
+          </p>
+          {!isMuted && isPlaying && (
+            <p style={{
+              color: '#FFD700',
+              fontSize: '1rem',
+              textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
+              margin: '0'
+            }}>
+              🎵 Enjoy the happy music while you play! 🎵
+            </p>
+          )}
+          {isMuted && (
+            <p style={{
+              color: '#FFB6C1',
+              fontSize: '1rem',
+              textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
+              margin: '0'
+            }}>
+              Tap the music button to hear fun sounds! 🔊
+            </p>
+          )}
+        </div>
       </div>
+
+      {/* CSS Animation for music pulse */}
+      <style>{`
+        @keyframes musicPulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+          100% { transform: scale(1); }
+        }
+      `}</style>
     </GameContainer>
   );
 }
