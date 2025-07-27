@@ -24,6 +24,12 @@ export default function MainMenu() {
     toggleMute();
   };
 
+  const handleFullScreen = () => {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen();
+    }
+  };
+
   const games = [
     {
       id: 'shapes' as const,
@@ -110,23 +116,48 @@ export default function MainMenu() {
           ))}
         </div>
 
-        {/* Sound Toggle */}
-        <GameButton
-          onClick={handleSoundToggle}
-          style={{
-            backgroundColor: isMuted ? '#FF6B6B' : '#96CEB4',
-            width: '180px',
-            height: '70px',
-            fontSize: '1.3rem',
-            animation: isPlaying && !isMuted ? 'musicPulse 1s ease-in-out infinite' : 'none'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {isMuted ? '🔇' : '🎵'}
-            <span>{isMuted ? 'Music Off' : 'Music On'}</span>
-            {isPlaying && !isMuted && <span>♪</span>}
-          </div>
-        </GameButton>
+        {/* Control Buttons */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '20px', 
+          justifyContent: 'center', 
+          alignItems: 'center',
+          flexWrap: 'wrap'
+        }}>
+          {/* Sound Toggle */}
+          <GameButton
+            onClick={handleSoundToggle}
+            style={{
+              backgroundColor: isMuted ? '#FF6B6B' : '#96CEB4',
+              width: '180px',
+              height: '70px',
+              fontSize: '1.3rem',
+              animation: isPlaying && !isMuted ? 'musicPulse 1s ease-in-out infinite' : 'none'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {isMuted ? '🔇' : '🎵'}
+              <span>{isMuted ? 'Music Off' : 'Music On'}</span>
+              {isPlaying && !isMuted && <span>♪</span>}
+            </div>
+          </GameButton>
+
+          {/* Full Screen Button */}
+          <GameButton
+            onClick={handleFullScreen}
+            style={{
+              backgroundColor: '#9B59B6',
+              width: '150px',
+              height: '70px',
+              fontSize: '1.3rem'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>⛶</span>
+              <span>Full Screen</span>
+            </div>
+          </GameButton>
+        </div>
 
         {/* Instructions */}
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
