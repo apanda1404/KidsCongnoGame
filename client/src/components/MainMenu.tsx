@@ -24,29 +24,39 @@ export default function MainMenu() {
     toggleMute();
   };
 
-  const handleFullScreen = () => {
+  const handleFullScreen = async () => {
     try {
-      if (document.fullscreenElement) {
+      if (document.fullscreenElement || (document as any).webkitFullscreenElement) {
         // Exit fullscreen if already in fullscreen
-        document.exitFullscreen();
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if ((document as any).webkitExitFullscreen) {
+          (document as any).webkitExitFullscreen();
+        }
       } else {
         // Enter fullscreen
-        if (document.documentElement.requestFullscreen) {
-          document.documentElement.requestFullscreen();
-        } else if ((document.documentElement as any).webkitRequestFullscreen) {
+        const element = document.documentElement;
+        if (element.requestFullscreen) {
+          await element.requestFullscreen();
+        } else if ((element as any).webkitRequestFullscreen) {
           // Safari support
-          (document.documentElement as any).webkitRequestFullscreen();
-        } else if ((document.documentElement as any).mozRequestFullScreen) {
+          (element as any).webkitRequestFullscreen();
+        } else if ((element as any).mozRequestFullScreen) {
           // Firefox support
-          (document.documentElement as any).mozRequestFullScreen();
-        } else if ((document.documentElement as any).msRequestFullscreen) {
+          (element as any).mozRequestFullScreen();
+        } else if ((element as any).msRequestFullscreen) {
           // IE/Edge support
-          (document.documentElement as any).msRequestFullscreen();
+          (element as any).msRequestFullscreen();
+        } else {
+          throw new Error('Fullscreen not supported');
         }
       }
     } catch (error) {
-      console.log('Fullscreen not supported or blocked by browser');
-      alert('Fullscreen mode is not available. You can manually press F11 or use your browser\'s fullscreen option.');
+      console.log('Fullscreen error:', error);
+      // Use a more user-friendly message
+      setTimeout(() => {
+        alert('🖥️ Fullscreen not available! Try pressing F11 on your keyboard for fullscreen mode.');
+      }, 100);
     }
   };
 
@@ -123,13 +133,13 @@ export default function MainMenu() {
         <div style={{
           display: 'grid',
           gridTemplateColumns: window.innerWidth <= 768 ? 
-            'repeat(2, minmax(150px, 1fr))' : 
-            'repeat(auto-fit, minmax(220px, 1fr))',
+            'repeat(2, minmax(160px, 1fr))' : 
+            'repeat(auto-fit, minmax(240px, 1fr))',
           gap: '15px',
           maxWidth: '1000px',
           width: '100%',
           marginBottom: '20px',
-          maxHeight: '60vh',
+          maxHeight: '75vh',
           overflowY: 'auto',
           overflowX: 'hidden',
           padding: '10px',
@@ -145,7 +155,7 @@ export default function MainMenu() {
               onClick={() => handleGameSelect(game.id)}
               style={{
                 backgroundColor: game.color,
-                minHeight: '140px',
+                minHeight: '170px',
                 fontSize: '1.1rem',
                 flexDirection: 'column',
                 gap: '8px'
