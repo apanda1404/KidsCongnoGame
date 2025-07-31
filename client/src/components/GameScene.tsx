@@ -3,6 +3,9 @@ import { useGame } from "../lib/stores/useGame";
 import ShapeSortingGame from "./games/ShapeSortingGame";
 import CountingGame from "./games/CountingGame";
 import ColorGame from "./games/ColorGame";
+import PatternGame from "./games/PatternGame";
+import MemoryGame from "./games/MemoryGame";
+import MatchingGame from "./games/MatchingGame";
 import GameButton from "./ui/GameButton";
 
 export default function GameScene() {
@@ -40,6 +43,9 @@ export default function GameScene() {
       {currentGame === 'shapes' && <ShapeSortingGame />}
       {currentGame === 'counting' && <CountingGame />}
       {currentGame === 'colors' && <ColorGame />}
+      {currentGame === 'patterns' && <PatternGame />}
+      {currentGame === 'memory' && <MemoryGame />}
+      {currentGame === 'matching' && <MatchingGame />}
     </div>
   );
 }

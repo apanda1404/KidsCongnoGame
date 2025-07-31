@@ -45,3 +45,33 @@ export const encouragingPhrases = [
   "You did it!",
   "Perfect!"
 ];
+
+// New game assets for pattern matching
+export const patterns = [
+  { id: 'circle-square', pattern: ['🔴', '🟦'], name: 'Circle-Square' },
+  { id: 'star-heart', pattern: ['⭐', '❤️'], name: 'Star-Heart' },
+  { id: 'triangle-diamond', pattern: ['🔺', '💎'], name: 'Triangle-Diamond' },
+  { id: 'sun-moon', pattern: ['☀️', '🌙'], name: 'Sun-Moon' },
+  { id: 'flower-tree', pattern: ['🌸', '🌳'], name: 'Flower-Tree' }
+];
+
+// Memory game items
+export const memoryItems = [
+  { id: 'apple', emoji: '🍎', name: 'Apple' },
+  { id: 'banana', emoji: '🍌', name: 'Banana' },
+  { id: 'car', emoji: '🚗', name: 'Car' },
+  { id: 'house', emoji: '🏠', name: 'House' },
+  { id: 'ball', emoji: '⚽', name: 'Ball' },
+  { id: 'book', emoji: '📚', name: 'Book' },
+  { id: 'cake', emoji: '🎂', name: 'Cake' },
+  { id: 'flower', emoji: '🌸', name: 'Flower' }
+];
+
+// Matching pairs for the matching game
+export const matchingPairs = [
+  { id: 'fruit', items: [{ emoji: '🍎', name: 'Apple' }, { emoji: '🍌', name: 'Banana' }], category: 'Fruits' },
+  { id: 'transport', items: [{ emoji: '🚗', name: 'Car' }, { emoji: '✈️', name: 'Plane' }], category: 'Transport' },
+  { id: 'animals', items: [{ emoji: '🐱', name: 'Cat' }, { emoji: '🐶', name: 'Dog' }], category: 'Animals' },
+  { id: 'nature', items: [{ emoji: '🌸', name: 'Flower' }, { emoji: '🌳', name: 'Tree' }], category: 'Nature' },
+  { id: 'food', items: [{ emoji: '🍕', name: 'Pizza' }, { emoji: '🎂', name: 'Cake' }], category: 'Food' }
+];

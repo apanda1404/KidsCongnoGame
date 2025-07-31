@@ -9,7 +9,7 @@ export default function MainMenu() {
   const { setCurrentGame, progress } = useGameProgress();
   const { toggleMute, isMuted, startBackgroundMusic, isPlaying } = useAudio();
 
-  const handleGameSelect = (gameType: 'shapes' | 'counting' | 'colors') => {
+  const handleGameSelect = (gameType: 'shapes' | 'counting' | 'colors' | 'patterns' | 'memory' | 'matching') => {
     // Start background music on first interaction
     startBackgroundMusic();
     setCurrentGame(gameType);
@@ -71,6 +71,27 @@ export default function MainMenu() {
       description: 'Find matching colors!',
       icon: '🌈',
       color: '#45B7D1'
+    },
+    {
+      id: 'patterns' as const,
+      title: 'Pattern Fun',
+      description: 'Complete the patterns!',
+      icon: '🔄',
+      color: '#FFD700'
+    },
+    {
+      id: 'memory' as const,
+      title: 'Memory Game',
+      description: 'Remember what you see!',
+      icon: '🧠',
+      color: '#9B59B6'
+    },
+    {
+      id: 'matching' as const,
+      title: 'Match Pairs',
+      description: 'Find things that go together!',
+      icon: '🤝',
+      color: '#FF8C42'
     }
   ];
 

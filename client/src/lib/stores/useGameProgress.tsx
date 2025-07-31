@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type GameType = 'shapes' | 'counting' | 'colors';
+export type GameType = 'shapes' | 'counting' | 'colors' | 'patterns' | 'memory' | 'matching';
 
 interface GameProgressState {
   currentGame: GameType | null;
@@ -20,7 +20,10 @@ export const useGameProgress = create<GameProgressState>()(
       progress: {
         shapes: 1,
         counting: 1,
-        colors: 1
+        colors: 1,
+        patterns: 1,
+        memory: 1,
+        matching: 1
       },
       
       setCurrentGame: (game) => {
@@ -41,7 +44,10 @@ export const useGameProgress = create<GameProgressState>()(
           progress: {
             shapes: 1,
             counting: 1,
-            colors: 1
+            colors: 1,
+            patterns: 1,
+            memory: 1,
+            matching: 1
           }
         });
       }
