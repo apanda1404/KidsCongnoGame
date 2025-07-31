@@ -101,10 +101,11 @@ export default function MainMenu() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         height: '100%',
         padding: '20px',
-        textAlign: 'center'
+        textAlign: 'center',
+        overflow: 'hidden'
       }}>
         {/* Title */}
         <h1 style={{
@@ -121,11 +122,22 @@ export default function MainMenu() {
         {/* Game Selection */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: '20px',
-          maxWidth: '800px',
+          gridTemplateColumns: window.innerWidth <= 768 ? 
+            'repeat(2, minmax(150px, 1fr))' : 
+            'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '15px',
+          maxWidth: '1000px',
           width: '100%',
-          marginBottom: '30px'
+          marginBottom: '20px',
+          maxHeight: '60vh',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          padding: '10px',
+          scrollBehavior: 'smooth',
+          borderRadius: '15px',
+          backgroundColor: 'rgba(255,255,255,0.1)',
+          backdropFilter: 'blur(10px)',
+          WebkitOverflowScrolling: 'touch'
         }}>
           {games.map((game) => (
             <GameButton
@@ -133,28 +145,39 @@ export default function MainMenu() {
               onClick={() => handleGameSelect(game.id)}
               style={{
                 backgroundColor: game.color,
-                minHeight: '150px',
-                fontSize: '1.2rem',
+                minHeight: '140px',
+                fontSize: '1.1rem',
                 flexDirection: 'column',
-                gap: '10px'
+                gap: '8px'
               }}
             >
-              <div style={{ fontSize: '3rem', marginBottom: '10px' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
                 {game.icon}
               </div>
-              <div style={{ fontWeight: 'bold' }}>
+              <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>
                 {game.title}
               </div>
-              <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
+              <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>
                 {game.description}
               </div>
               {progress[game.id] > 0 && (
-                <div style={{ fontSize: '0.8rem', marginTop: '5px' }}>
+                <div style={{ fontSize: '0.7rem', marginTop: '3px' }}>
                   ⭐ Level {progress[game.id]}
                 </div>
               )}
             </GameButton>
           ))}
+        </div>
+
+        {/* Scroll Indicator */}
+        <div style={{
+          fontSize: '1rem',
+          color: '#fff',
+          textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
+          marginBottom: '20px',
+          animation: 'scrollHint 2s ease-in-out infinite'
+        }}>
+          ↕️ Scroll to see all games! ↕️
         </div>
 
         {/* Control Buttons */}
@@ -242,12 +265,18 @@ export default function MainMenu() {
         </div>
       </div>
 
-      {/* CSS Animation for music pulse */}
+      {/* CSS Animations */}
       <style>{`
         @keyframes musicPulse {
           0% { transform: scale(1); }
           50% { transform: scale(1.05); }
           100% { transform: scale(1); }
+        }
+        
+        @keyframes scrollHint {
+          0% { opacity: 0.7; transform: translateY(0); }
+          50% { opacity: 1; transform: translateY(-5px); }
+          100% { opacity: 0.7; transform: translateY(0); }
         }
       `}</style>
     </GameContainer>
