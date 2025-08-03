@@ -7,7 +7,7 @@ import GameContainer from "./ui/GameContainer";
 export default function MainMenu() {
   const { start } = useGame();
   const { setCurrentGame, progress } = useGameProgress();
-  const { toggleMute, isMuted, startBackgroundMusic, isPlaying } = useAudio();
+  const { toggleMute, isMuted, startBackgroundMusic, isPlaying, nextMusicTrack, currentMusicTrack, musicNames } = useAudio();
 
   const handleGameSelect = (gameType: 'shapes' | 'counting' | 'colors' | 'patterns' | 'memory' | 'matching') => {
     // Start background music on first interaction
@@ -213,6 +213,27 @@ export default function MainMenu() {
               {isMuted ? '🔇' : '🎵'}
               <span>{isMuted ? 'Music Off' : 'Music On'}</span>
               {isPlaying && !isMuted && <span>♪</span>}
+            </div>
+          </GameButton>
+
+          {/* Music Change Button */}
+          <GameButton
+            onClick={nextMusicTrack}
+            style={{
+              backgroundColor: '#FF8C42',
+              width: '180px',
+              height: '70px',
+              fontSize: '1.1rem',
+              flexDirection: 'column',
+              gap: '4px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>🎶</span>
+              <span>Change Music</span>
+            </div>
+            <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>
+              {musicNames[currentMusicTrack]}
             </div>
           </GameButton>
 
