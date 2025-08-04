@@ -1,19 +1,60 @@
+import React from "react";
 import { useGame } from "../lib/stores/useGame";
 import { useGameProgress } from "../lib/stores/useGameProgress";
 import { useAudio } from "../lib/stores/useAudio";
+import { useSpeechRecognition } from "../lib/stores/useSpeechRecognition";
 import GameButton from "./ui/GameButton";
 import GameContainer from "./ui/GameContainer";
+import SpeechButton from "./ui/SpeechButton";
+import GameSuggestion from "./ui/GameSuggestion";
+import ProgressReport from "./ui/ProgressReport";
 
 export default function MainMenu() {
   const { start } = useGame();
   const { setCurrentGame, progress } = useGameProgress();
   const { toggleMute, isMuted, startBackgroundMusic, isPlaying, nextMusicTrack, currentMusicTrack, musicNames } = useAudio();
+  const { initializeSpeechRecognition } = useSpeechRecognition();
+
+  // Initialize speech recognition on component mount
+  React.useEffect(() => {
+    initializeSpeechRecognition();
+  }, []);
 
   const handleGameSelect = (gameType: 'shapes' | 'counting' | 'colors' | 'patterns' | 'memory' | 'matching') => {
     // Start background music on first interaction
     startBackgroundMusic();
     setCurrentGame(gameType);
     start();
+  };
+
+  const handleVoiceGameSelect = (transcript: string, confidence: number) => {
+    console.log(`Voice command: "${transcript}" (${confidence})`);
+    
+    const gameType = parseGameFromSpeech(transcript);
+    if (gameType) {
+      handleGameSelect(gameType);
+    }
+  };
+
+  const parseGameFromSpeech = (transcript: string): 'shapes' | 'counting' | 'colors' | 'patterns' | 'memory' | 'matching' | null => {
+    const lowerTranscript = transcript.toLowerCase();
+    
+    const gameKeywords = {
+      'shapes': ['shape', 'circle', 'square', 'triangle', 'sorting'],
+      'counting': ['count', 'number', 'animal', 'how many'],
+      'colors': ['color', 'red', 'blue', 'green', 'rainbow'],
+      'patterns': ['pattern', 'complete', 'sequence'],
+      'memory': ['memory', 'remember', 'brain'],
+      'matching': ['match', 'pair', 'together']
+    };
+
+    for (const [gameType, keywords] of Object.entries(gameKeywords)) {
+      if (keywords.some(keyword => lowerTranscript.includes(keyword))) {
+        return gameType as any;
+      }
+    }
+    
+    return null;
   };
 
   const handleSoundToggle = () => {
@@ -190,6 +231,28 @@ export default function MainMenu() {
           ↕️ Scroll to see all games! ↕️
         </div>
 
+        {/* Voice Control */}
+        <div style={{ marginBottom: '20px' }}>
+          <SpeechButton 
+            onSpeechResult={handleVoiceGameSelect}
+            style={{
+              width: '250px',
+              height: '60px',
+              fontSize: '1.1rem',
+              backgroundColor: '#9B59B6'
+            }}
+          />
+          <p style={{
+            color: '#fff',
+            fontSize: '0.9rem',
+            textAlign: 'center',
+            marginTop: '8px',
+            textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+          }}>
+            Say "shapes", "counting", "colors", etc. to start a game!
+          </p>
+        </div>
+
         {/* Control Buttons */}
         <div style={{ 
           display: 'flex', 
@@ -295,6 +358,10 @@ export default function MainMenu() {
           </p>
         </div>
       </div>
+
+      {/* AI Components */}
+      <GameSuggestion />
+      <ProgressReport />
 
       {/* CSS Animations */}
       <style>{`

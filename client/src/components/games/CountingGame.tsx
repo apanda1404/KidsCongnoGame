@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useGameProgress } from "../../lib/stores/useGameProgress";
 import { useAudio } from "../../lib/stores/useAudio";
+import { useSpeechRecognition } from "../../lib/stores/useSpeechRecognition";
 import GameContainer from "../ui/GameContainer";
 import GameButton from "../ui/GameButton";
 import StarReward from "../ui/StarReward";
+import SpeechButton from "../ui/SpeechButton";
 import { animals } from "../../lib/gameAssets";
 
 interface CountingQuestion {
@@ -23,9 +25,11 @@ export default function CountingGame() {
 
   const currentLevel = progress.counting || 1;
   const maxCount = Math.min(2 + currentLevel, 5);
+  const { initializeSpeechRecognition } = useSpeechRecognition();
 
   useEffect(() => {
     generateQuestion();
+    initializeSpeechRecognition();
   }, [currentLevel]);
 
   const generateQuestion = () => {
@@ -81,6 +85,40 @@ export default function CountingGame() {
     }
   };
 
+  const handleSpeechResult = (transcript: string, confidence: number) => {
+    console.log(`Speech: "${transcript}" (${confidence})`);
+    
+    const spokenNumber = parseNumberFromSpeech(transcript);
+    if (spokenNumber !== null && question?.options.includes(spokenNumber)) {
+      handleAnswerSelect(spokenNumber);
+    }
+  };
+
+  const parseNumberFromSpeech = (transcript: string): number | null => {
+    const lowerTranscript = transcript.toLowerCase();
+    
+    // Number word mapping
+    const numberWords: { [key: string]: number } = {
+      'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+      'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10
+    };
+
+    // Check for number words
+    for (const [word, number] of Object.entries(numberWords)) {
+      if (lowerTranscript.includes(word)) {
+        return number;
+      }
+    }
+
+    // Check for digits
+    const digitMatch = lowerTranscript.match(/\d+/);
+    if (digitMatch) {
+      return parseInt(digitMatch[0]);
+    }
+
+    return null;
+  };
+
   if (!question) return null;
 
   return (
@@ -120,11 +158,24 @@ export default function CountingGame() {
           fontSize: '1.1rem',
           color: '#fff',
           textAlign: 'center',
-          marginBottom: '30px',
+          marginBottom: '20px',
           textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
         }}>
-          How many animals do you see? Count and tap the right number! 🔢
+          Count the animals and tap the number or say it out loud! 🔢
         </p>
+
+        {/* Speech Button */}
+        <div style={{ marginBottom: '20px' }}>
+          <SpeechButton 
+            onSpeechResult={handleSpeechResult}
+            style={{
+              width: '200px',
+              height: '50px',
+              fontSize: '1rem'
+            }}
+            disabled={selectedAnswer !== null}
+          />
+        </div>
 
         {/* Items to Count */}
         <div style={{

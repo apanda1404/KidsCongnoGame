@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useGameProgress } from "../../lib/stores/useGameProgress";
 import { useAudio } from "../../lib/stores/useAudio";
+import { useSpeechRecognition } from "../../lib/stores/useSpeechRecognition";
 import GameContainer from "../ui/GameContainer";
 import GameButton from "../ui/GameButton";
 import StarReward from "../ui/StarReward";
+import SpeechButton from "../ui/SpeechButton";
 import { colors } from "../../lib/gameAssets";
 
 interface ColorQuestion {
@@ -22,9 +24,11 @@ export default function ColorGame() {
 
   const currentLevel = progress.colors || 1;
   const optionsCount = Math.min(2 + currentLevel, 4);
+  const { initializeSpeechRecognition } = useSpeechRecognition();
 
   useEffect(() => {
     generateQuestion();
+    initializeSpeechRecognition();
   }, [currentLevel]);
 
   const generateQuestion = () => {
@@ -73,6 +77,30 @@ export default function ColorGame() {
     }
   };
 
+  const handleSpeechResult = (transcript: string, confidence: number) => {
+    console.log(`Speech: "${transcript}" (${confidence})`);
+    
+    const spokenColor = parseColorFromSpeech(transcript);
+    if (spokenColor && question?.options.some(option => option.name === spokenColor)) {
+      handleColorSelect(spokenColor);
+    }
+  };
+
+  const parseColorFromSpeech = (transcript: string): string | null => {
+    const lowerTranscript = transcript.toLowerCase();
+    
+    // Check for color names in the transcript
+    const availableColors = question?.options.map(option => option.name) || [];
+    
+    for (const colorName of availableColors) {
+      if (lowerTranscript.includes(colorName.toLowerCase())) {
+        return colorName;
+      }
+    }
+    
+    return null;
+  };
+
   if (!question) return null;
 
   return (
@@ -112,11 +140,24 @@ export default function ColorGame() {
           fontSize: '1.1rem',
           color: '#fff',
           textAlign: 'center',
-          marginBottom: '20px',
+          marginBottom: '15px',
           textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
         }}>
-          Find the color that matches: 👇
+          Find the matching color by tapping or saying its name! 👇
         </p>
+
+        {/* Speech Button */}
+        <div style={{ marginBottom: '20px' }}>
+          <SpeechButton 
+            onSpeechResult={handleSpeechResult}
+            style={{
+              width: '200px',
+              height: '50px',
+              fontSize: '1rem'
+            }}
+            disabled={selectedColor !== null}
+          />
+        </div>
 
         {/* Target Color */}
         <div style={{

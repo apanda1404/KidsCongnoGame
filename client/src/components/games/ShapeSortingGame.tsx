@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
 import { useGameProgress } from "../../lib/stores/useGameProgress";
 import { useAudio } from "../../lib/stores/useAudio";
+import { useSpeechRecognition } from "../../lib/stores/useSpeechRecognition";
+import { useAITutor } from "../../lib/stores/useAITutor";
 import GameContainer from "../ui/GameContainer";
 import GameButton from "../ui/GameButton";
 import StarReward from "../ui/StarReward";
+import SpeechButton from "../ui/SpeechButton";
+import AIHintSystem from "../ui/AIHintSystem";
+import CelebrationMessage from "../ui/CelebrationMessage";
 import { shapes, animals } from "../../lib/gameAssets";
 
 interface GameShape {
@@ -29,12 +34,23 @@ export default function ShapeSortingGame() {
   const [showReward, setShowReward] = useState(false);
   const [level, setLevel] = useState(1);
   const [score, setScore] = useState(0);
+  const [showHint, setShowHint] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [wrongAttempts, setWrongAttempts] = useState(0);
 
   const currentLevel = progress.shapes || 1;
   const maxShapes = Math.min(3 + currentLevel, 6);
+  const { initializeSpeechRecognition } = useSpeechRecognition();
+  const { startSession, recordAttempt, endSession } = useAITutor();
 
   useEffect(() => {
     initializeGame();
+    initializeSpeechRecognition();
+    startSession('shapes');
+    
+    return () => {
+      endSession();
+    };
   }, [level, currentLevel]);
 
   const initializeGame = () => {
@@ -71,6 +87,7 @@ export default function ShapeSortingGame() {
 
     if (draggedShape.type === slot.type) {
       // Correct match
+      recordAttempt(true);
       setGameShapes(prev => 
         prev.map(s => s.id === draggedShape.id ? { ...s, matched: true } : s)
       );
@@ -80,10 +97,12 @@ export default function ShapeSortingGame() {
       
       const newScore = score + 1;
       setScore(newScore);
+      setWrongAttempts(0); // Reset wrong attempts on success
       playSuccess();
 
       // Check if all shapes are matched
       if (newScore === maxShapes) {
+        setShowCelebration(true);
         setShowReward(true);
         setTimeout(() => {
           const nextLevel = currentLevel + 1;
@@ -91,14 +110,58 @@ export default function ShapeSortingGame() {
           setLevel(nextLevel);
           setScore(0);
           initializeGame();
-        }, 2000);
+        }, 3000);
       }
     } else {
-      // Wrong match - just play hit sound
+      // Wrong match
+      recordAttempt(false, 'wrong_shape_match');
+      const newWrongAttempts = wrongAttempts + 1;
+      setWrongAttempts(newWrongAttempts);
       playHit();
+      
+      // Show hint after 2 wrong attempts
+      if (newWrongAttempts >= 2) {
+        setShowHint(true);
+        setWrongAttempts(0);
+      }
     }
 
     setDraggedShape(null);
+  };
+
+  const handleSpeechResult = (transcript: string, confidence: number) => {
+    console.log(`Speech: "${transcript}" (${confidence})`);
+    
+    // Convert speech to shape selection
+    const spokenShape = parseShapeFromSpeech(transcript);
+    if (spokenShape) {
+      const shape = gameShapes.find(s => s.type === spokenShape && !s.matched);
+      if (shape) {
+        handleShapePress(shape);
+      }
+    }
+  };
+
+  const parseShapeFromSpeech = (transcript: string): string | null => {
+    const lowerTranscript = transcript.toLowerCase();
+    
+    // Shape keywords mapping
+    const shapeKeywords = {
+      'circle': ['circle', 'round', 'ball', 'red'],
+      'square': ['square', 'box', 'blue'],
+      'triangle': ['triangle', 'three', 'point'],
+      'star': ['star', 'yellow'],
+      'heart': ['heart', 'love', 'pink'],
+      'diamond': ['diamond', 'gem', 'purple']
+    };
+
+    for (const [shapeType, keywords] of Object.entries(shapeKeywords)) {
+      if (keywords.some(keyword => lowerTranscript.includes(keyword))) {
+        return shapeType;
+      }
+    }
+    
+    return null;
   };
 
   return (
@@ -138,11 +201,23 @@ export default function ShapeSortingGame() {
           fontSize: '1.1rem',
           color: '#fff',
           textAlign: 'center',
-          marginBottom: '30px',
+          marginBottom: '20px',
           textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
         }}>
-          Tap a shape, then tap its matching home! 🏠
+          Tap a shape or say its name! Then tap its matching home! 🏠
         </p>
+
+        {/* Speech Button */}
+        <div style={{ marginBottom: '20px' }}>
+          <SpeechButton 
+            onSpeechResult={handleSpeechResult}
+            style={{
+              width: '200px',
+              height: '50px',
+              fontSize: '1rem'
+            }}
+          />
+        </div>
 
         {/* Game Area */}
         <div style={{
@@ -231,9 +306,24 @@ export default function ShapeSortingGame() {
             fontWeight: 'bold',
             boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
           }}>
-            Selected: {draggedShape.emoji} • Tap its home!
+            Selected: {draggedShape.emoji} • Tap its home or say "circle", "square", etc.!
           </div>
         )}
+
+        {/* AI Components */}
+        <AIHintSystem 
+          gameType="shapes"
+          showHint={showHint}
+          onHintDismiss={() => setShowHint(false)}
+          context={{ currentShapes: gameShapes, selectedShape: draggedShape }}
+        />
+        
+        <CelebrationMessage 
+          gameType="shapes"
+          performance={{ correct: score, total: maxShapes }}
+          show={showCelebration}
+          onComplete={() => setShowCelebration(false)}
+        />
 
         {/* Reward Display */}
         {showReward && <StarReward />}

@@ -34,16 +34,20 @@ export const useAudio = create<AudioState>((set, get) => ({
   isPlaying: false,
   currentMusicTrack: 0,
   musicTracks: [
-    '/sounds/background.mp3',
-    '/sounds/background.mp3',
-    '/sounds/background.mp3',
-    '/sounds/background.mp3'
+    '/sounds/happy-kids.mp3',
+    '/sounds/playful-bounce.mp3',
+    '/sounds/learning-fun.mp3',
+    '/sounds/cheerful-day.mp3',
+    '/sounds/adventure-time.mp3',
+    '/sounds/rainbow-melody.mp3'
   ],
   musicNames: [
-    'Happy Melody',
-    'Cheerful Tune',
-    'Playful Music',
-    'Learning Beat'
+    'Happy Kids',
+    'Playful Bounce',
+    'Learning Fun',
+    'Cheerful Day',
+    'Adventure Time',
+    'Rainbow Melody'
   ],
   
   setBackgroundMusic: (music) => set({ backgroundMusic: music }),
@@ -118,28 +122,9 @@ export const useAudio = create<AudioState>((set, get) => ({
       newMusic.loop = true;
       newMusic.preload = 'auto';
       
-      // Apply different audio characteristics based on track index
-      switch (trackIndex) {
-        case 0: // Happy Melody - Normal
-          newMusic.volume = 0.4;
-          newMusic.playbackRate = 1.0;
-          break;
-        case 1: // Cheerful Tune - Slightly faster and brighter
-          newMusic.volume = 0.45;
-          newMusic.playbackRate = 1.1;
-          break;
-        case 2: // Playful Music - Faster and more energetic
-          newMusic.volume = 0.5;
-          newMusic.playbackRate = 1.2;
-          break;
-        case 3: // Learning Beat - Slower and calmer
-          newMusic.volume = 0.35;
-          newMusic.playbackRate = 0.9;
-          break;
-        default:
-          newMusic.volume = 0.4;
-          newMusic.playbackRate = 1.0;
-      }
+      // Set consistent audio properties for all tracks
+      newMusic.volume = 0.4;
+      newMusic.playbackRate = 1.0;
       
       set({ 
         backgroundMusic: newMusic, 
@@ -150,16 +135,18 @@ export const useAudio = create<AudioState>((set, get) => ({
       if (!isMuted) {
         newMusic.play().catch(() => {
           console.log("New music autoplay prevented");
-        }).then(() => {
-          set({ isPlaying: true });
         });
+        set({ isPlaying: true });
       }
+      
+      console.log(`Switched to track ${trackIndex + 1}: ${get().musicNames[trackIndex]}`);
     }
   },
   
   nextMusicTrack: () => {
     const { currentMusicTrack, musicTracks } = get();
     const nextTrack = (currentMusicTrack + 1) % musicTracks.length;
+    console.log(`Changing from track ${currentMusicTrack + 1} to track ${nextTrack + 1}`);
     get().switchMusicTrack(nextTrack);
   },
   
